@@ -1,7 +1,10 @@
 const fs = require('fs') //для работы с файлами
 const http = require('http') //для создания сервера
+const url = require('url')
+const replaceTemplate = require('./modules/replaceTemplate')
+const slugify = require('slugify');
 
-///////////////////////
+//////////////////////
 //FILE
 //Blocking code
 
@@ -24,22 +27,40 @@ const http = require('http') //для создания сервера
 ////////////////////////
 //SERVER
 
+
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8')
+const dataObj = JSON.parse(data)
+const templateOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8')
+const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product.html`, 'utf-8')
+const templateCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8')
 //Распарсить если будем работать с данными на сервере
 // const productData = JSON.parse(data)
 // console.log(product)
 
-http.createServer((rej, res) => {
-    const route = rej.url
-    if (route === '/' || route === '/overview') {
-        res.end('This is page of overview')
-    } else if (route === '/product') {
-        res.end('This is page of product')
-    } else if (route === '/api') {
+const slugs = dataObj.map(el => slugify(el.productName, {lower: true}))
+console.log(slugs)
+
+http.createServer((req, res) => {
+    const {pathname, query} = url.parse(req.url, true)
+    //overview
+    if (pathname === '/' || pathname === '/overview') {
+        res.writeHead(200, {'Content-type': 'text/html'})
+        const cardsHtml = dataObj.map(el => replaceTemplate(templateCard, el)).join('')
+        const outHtml = templateOverview.replace('{%PRODUCT_CARDS%}', cardsHtml)
+        res.end(outHtml)
+        //product
+    } else if (pathname === '/product') {
+        const product = dataObj[query.id]
+        res.writeHead(200,{ 'Content-type': 'text/html'})
+        const output = replaceTemplate(templateProduct, product)
+        res.end(output)
+        //api
+    } else if (pathname === '/api') {
         res.writeHead(200, {
             'Content-type': 'application/json'
         })
         res.end(data)
+        //not found
     } else {
         res.writeHead(404)
         res.end('Page not found')
