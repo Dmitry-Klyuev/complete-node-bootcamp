@@ -2,12 +2,22 @@ const express = require('express')
 const fs = require('fs')
 const crypto = require("crypto");
 const {json} = require("express");
+const morgan = require("morgan")
 
 const app = express()
 app.use(express.json())
 
 const port = 3000;
 
+//1) MIDDLEWARES
+app.use((req, res, next) => {
+    console.log('Hello from middleware')
+    next()
+})
+//morgan - для логирования происходящего
+app.use(morgan('dev'))
+
+//2) ROUTES HANDLER
 const getAllTour = (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -84,24 +94,64 @@ const deleteTour = (req, res) => {
         })
     })
 }
+const getAllUsers = (req, res) => {
+    res.status(500).json({
+        status: 'Error',
+        message: 'Route is not completed'
+    })
+}
+const getUser = (req, res) => {
+    res.status(500).json({
+        status: 'Error',
+        message: 'Route is not completed'
+    })
+}
+const createUser = (req, res) => {
+    res.status(500).json({
+        status: 'Error',
+        message: 'Route is not completed'
+    })
+}
+const updateUser = (req, res) => {
+    res.status(500).json({
+        status: 'Error',
+        message: 'Route is not completed'
+    })
+}
+const deleteUser = (req, res) => {
+    res.status(500).json({
+        status: 'Error',
+        message: 'Route is not completed'
+    })
+}
+
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`, 'utf-8'))
 
-// app.get('/api/v1/tours', getAllTour)
-// app.get('/api/v1/tours/:id', getTour)
-// app.post('/api/v1/tours', createTour)
-// app.patch('/api/v1/tours/:id', updateTour)
-// app.delete('/api/v1/tours/:id', deleteTour)
 
-//Refactor//
-app.route('/api/v1/tours')
+//3) ROUTES
+const tourRouter = express.Router();
+const userRouter = express.Router();
+
+tourRouter.route('/')
     .get(getAllTour)
     .post(createTour)
-app.route('/api/v1/tours/:id')
+tourRouter.route('/:id')
     .get(getTour)
     .patch(updateTour)
     .delete(deleteTour)
+userRouter.route('/')
+    .get(getAllUsers)
+userRouter.route('/ :id')
+    .get(getUser)
+    .post(createUser)
+    .put(updateUser)
+    .delete(deleteUser)
 
+app.use('/api/v1/tours', tourRouter)
+app.use('/api/v1/users', userRouter)
+
+//4) START SERVER
 app.listen(port, () => {
     console.log(`Server running in ${port}...`)
 })
