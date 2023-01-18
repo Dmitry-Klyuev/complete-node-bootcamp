@@ -16,6 +16,17 @@ exports.checkID = (req, res, next, val) => {
     next()
 }
 
+exports.checkBody = (req, res, next) => {
+    const {name, price} = req
+    if (!req.body.name || !req.body.price){
+      return res.status('404').json({
+            status: 'Error',
+            message: 'Не все параметры'
+        })
+    }
+    next()
+}
+
 exports.getAllTour = (req, res) => {
     res.status(200).json({
         status: 'success',
