@@ -12,7 +12,9 @@ app.use((req, res, next) => {
     next()
 })
 //morgan - для логирования происходящего
-app.use(morgan('dev'))
+if (process.env.NODE_ENV === 'developer'){
+    app.use(morgan('dev'))
+}
 
 //3) ROUTES
 app.use('/api/v1/tours', tourRouter)
