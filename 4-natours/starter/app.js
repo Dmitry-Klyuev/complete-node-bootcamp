@@ -5,7 +5,7 @@ const userRouter = require('./routes/userRouter')
 
 const app = express()
 app.use(express.json())
-
+app.use(express.static(`${__dirname}/public`))
 //1) MIDDLEWARES
 app.use((req, res, next) => {
     console.log('Hello from middleware')
